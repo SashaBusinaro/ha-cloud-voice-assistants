@@ -288,7 +288,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [commits-shield]: https://img.shields.io/github/commit-activity/y/SashaBusinaro/ha-cloud-voice-assistants.svg?style=for-the-badge
 [commits]: https://github.com/SashaBusinaro/ha-cloud-voice-assistants/commits/main
 [hacs]: https://github.com/hacs/integration
-[hacsbadge]: https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge
+[hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 [license-shield]: https://img.shields.io/github/license/SashaBusinaro/ha-cloud-voice-assistants.svg?style=for-the-badge
 [maintenance-shield]: https://img.shields.io/badge/maintainer-%40SashaBusinaro-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/SashaBusinaro/ha-cloud-voice-assistants.svg?style=for-the-badge
