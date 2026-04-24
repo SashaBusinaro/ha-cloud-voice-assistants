@@ -1,7 +1,7 @@
 """Cloud Voice Assistants integration for Home Assistant.
 
 Provides Conversation (LLM agent) and STT (speech-to-text) entities for
-multiple AI cloud providers (Groq, Mistral AI). Each config entry creates
+multiple AI cloud providers (Groq, Mistral). Each config entry creates
 one ConversationEntity and one SpeechToTextEntity for the selected provider.
 """
 
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from .data import CloudVoiceAssistantsConfigEntry
 
 PLATFORMS: list[Platform] = [
+    Platform.AI_TASK,
     Platform.CONVERSATION,
     Platform.STT,
 ]

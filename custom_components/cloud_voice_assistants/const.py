@@ -17,6 +17,7 @@ CONF_PROVIDER = "provider"
 # Sub-entry type identifiers
 SUBENTRY_TYPE_CONVERSATION = "conversation"
 SUBENTRY_TYPE_STT = "stt"
+SUBENTRY_TYPE_AI_TASK = "ai_task_data"
 
 # Sub-entry data keys
 # Note: CONF_LLM_HASS_API is homeassistant.const.CONF_LLM_HASS_API ("llm_hass_api")
@@ -29,6 +30,7 @@ CONF_STT_MODEL = "stt_model"
 # Option defaults
 DEFAULT_TEMPERATURE = 1.0
 DEFAULT_MAX_TOKENS = 1024
+DEFAULT_AI_TASK_MAX_TOKENS = 4096
 DEFAULT_PROMPT = (
     "You are a helpful voice assistant for a smart home called {{ ha_name }}.\n"
     "Answer in the same language the user speaks.\n"

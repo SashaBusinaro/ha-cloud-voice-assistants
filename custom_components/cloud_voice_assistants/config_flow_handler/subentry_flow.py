@@ -18,6 +18,7 @@ from custom_components.cloud_voice_assistants.const import (
     CONF_PROVIDER,
     CONF_STT_MODEL,
     CONF_TEMPERATURE,
+    DEFAULT_AI_TASK_MAX_TOKENS,
     DEFAULT_MAX_TOKENS,
     DEFAULT_PROMPT,
     DEFAULT_TEMPERATURE,
@@ -225,4 +226,103 @@ class SttSubentryFlow(config_entries.ConfigSubentryFlow):
         )
 
 
-__all__ = ["ConversationSubentryFlow", "SttSubentryFlow"]
+def _get_ai_task_schema(
+    chat_models: list[str],
+    defaults: dict[str, Any],
+) -> vol.Schema:
+    """Build the schema for the AI task sub-entry form."""
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_MODEL,
+                default=defaults.get(CONF_MODEL, chat_models[0]),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=chat_models,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(
+                CONF_TEMPERATURE,
+                default=defaults.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0.0,
+                    max=1.0,
+                    step=0.05,
+                    mode=selector.NumberSelectorMode.SLIDER,
+                )
+            ),
+            vol.Optional(
+                CONF_MAX_TOKENS,
+                default=defaults.get(CONF_MAX_TOKENS, DEFAULT_AI_TASK_MAX_TOKENS),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=64,
+                    max=8192,
+                    step=64,
+                    mode=selector.NumberSelectorMode.BOX,
+                )
+            ),
+        }
+    )
+
+
+def _clean_ai_task_data(data: dict[str, Any]) -> dict[str, Any]:
+    """Ensure numeric types for AI task sub-entry data."""
+    result = dict(data)
+    result[CONF_TEMPERATURE] = float(result.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE))
+    result[CONF_MAX_TOKENS] = int(result.get(CONF_MAX_TOKENS, DEFAULT_AI_TASK_MAX_TOKENS))
+    return result
+
+
+class AiTaskSubentryFlow(config_entries.ConfigSubentryFlow):
+    """Sub-entry flow for adding or reconfiguring an AI task assistant."""
+
+    async def async_step_user(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> config_entries.SubentryFlowResult:
+        """Show form to configure an AI task model."""
+        entry = self._get_entry()
+        provider_id: str = str(entry.data[CONF_PROVIDER])
+        chat_models = _CHAT_MODELS_BY_PROVIDER.get(provider_id, [])
+
+        if user_input is not None:
+            data = _clean_ai_task_data(user_input)
+            title = str(data[CONF_MODEL])
+            LOGGER.debug("Creating AI task sub-entry: %s", title)
+            return self.async_create_entry(title=title, data=data)
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=_get_ai_task_schema(chat_models, {}),
+        )
+
+    async def async_step_reconfigure(
+        self,
+        user_input: dict[str, Any] | None = None,
+    ) -> config_entries.SubentryFlowResult:
+        """Handle reconfiguration of an existing AI task sub-entry."""
+        entry = self._get_entry()
+        subentry = entry.subentries[self._reconfigure_subentry_id]
+        provider_id: str = str(entry.data[CONF_PROVIDER])
+        chat_models = _CHAT_MODELS_BY_PROVIDER.get(provider_id, [])
+
+        if user_input is not None:
+            data = _clean_ai_task_data(user_input)
+            title = str(data[CONF_MODEL])
+            return self.async_update_reload_and_abort(
+                entry,
+                subentry,
+                title=title,
+                data=data,
+            )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=_get_ai_task_schema(chat_models, dict(subentry.data)),
+        )
+
+
+__all__ = ["AiTaskSubentryFlow", "ConversationSubentryFlow", "SttSubentryFlow"]

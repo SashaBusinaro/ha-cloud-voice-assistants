@@ -5,7 +5,8 @@ Implements:
 - step_credentials: API key entry + validation
 - step_reauth / step_reauth_confirm: reauthentication
 - step_reconfigure: update existing API key
-- async_get_supported_subentry_types: conversation + STT sub-entry flows
+- async_get_supported_subentry_types: conversation, STT, and AI task sub-entry flows
+- On first setup, default sub-entries for conversation, STT, and AI task are created automatically
 """
 
 from __future__ import annotations
@@ -13,19 +14,48 @@ from __future__ import annotations
 from typing import Any
 
 from custom_components.cloud_voice_assistants.const import (
+    CONF_MAX_TOKENS,
+    CONF_MODEL,
+    CONF_PROMPT,
     CONF_PROVIDER,
+    CONF_STT_MODEL,
+    CONF_TEMPERATURE,
+    DEFAULT_AI_TASK_MAX_TOKENS,
+    DEFAULT_MAX_TOKENS,
+    DEFAULT_PROMPT,
+    DEFAULT_TEMPERATURE,
     DOMAIN,
     LOGGER,
+    PROVIDER_GROQ,
+    PROVIDER_MISTRAL,
+    SUBENTRY_TYPE_AI_TASK,
     SUBENTRY_TYPE_CONVERSATION,
     SUBENTRY_TYPE_STT,
+)
+from custom_components.cloud_voice_assistants.providers.groq import (
+    DEFAULT_CHAT_MODEL as GROQ_DEFAULT_CHAT_MODEL,
+    DEFAULT_STT_MODEL as GROQ_DEFAULT_STT_MODEL,
+)
+from custom_components.cloud_voice_assistants.providers.mistral import (
+    DEFAULT_CHAT_MODEL as MISTRAL_DEFAULT_CHAT_MODEL,
+    DEFAULT_STT_MODEL as MISTRAL_DEFAULT_STT_MODEL,
 )
 from homeassistant import config_entries
 from homeassistant.const import CONF_API_KEY
 from homeassistant.core import callback
 
 from .schemas.config import PROVIDER_LABELS, get_credentials_schema, get_provider_schema
-from .subentry_flow import ConversationSubentryFlow, SttSubentryFlow
+from .subentry_flow import AiTaskSubentryFlow, ConversationSubentryFlow, SttSubentryFlow
 from .validators.credentials import validate_api_key
+
+_DEFAULT_CHAT_MODEL: dict[str, str] = {
+    PROVIDER_GROQ: GROQ_DEFAULT_CHAT_MODEL,
+    PROVIDER_MISTRAL: MISTRAL_DEFAULT_CHAT_MODEL,
+}
+_DEFAULT_STT_MODEL: dict[str, str] = {
+    PROVIDER_GROQ: GROQ_DEFAULT_STT_MODEL,
+    PROVIDER_MISTRAL: MISTRAL_DEFAULT_STT_MODEL,
+}
 
 _ERROR_MAP: dict[str, str] = {
     "InvalidAPIKeyError": "invalid_auth",
@@ -50,6 +80,7 @@ class CloudVoiceAssistantsConfigFlowHandler(config_entries.ConfigFlow, domain=DO
     ) -> dict[str, type[config_entries.ConfigSubentryFlow]]:
         """Return sub-entry types supported by this integration."""
         return {
+            SUBENTRY_TYPE_AI_TASK: AiTaskSubentryFlow,
             SUBENTRY_TYPE_CONVERSATION: ConversationSubentryFlow,
             SUBENTRY_TYPE_STT: SttSubentryFlow,
         }
@@ -85,12 +116,44 @@ class CloudVoiceAssistantsConfigFlowHandler(config_entries.ConfigFlow, domain=DO
             else:
                 await self.async_set_unique_id(self._provider_id)
                 self._abort_if_unique_id_configured()
+                provider_label = PROVIDER_LABELS.get(self._provider_id, self._provider_id)
+                chat_model = _DEFAULT_CHAT_MODEL.get(self._provider_id, "")
+                stt_model = _DEFAULT_STT_MODEL.get(self._provider_id, "")
                 return self.async_create_entry(
-                    title=PROVIDER_LABELS.get(self._provider_id, self._provider_id),
+                    title=provider_label,
                     data={
                         CONF_PROVIDER: self._provider_id,
                         CONF_API_KEY: api_key,
                     },
+                    subentries=[
+                        {
+                            "subentry_type": SUBENTRY_TYPE_CONVERSATION,
+                            "data": {
+                                CONF_MODEL: chat_model,
+                                CONF_PROMPT: DEFAULT_PROMPT,
+                                CONF_TEMPERATURE: DEFAULT_TEMPERATURE,
+                                CONF_MAX_TOKENS: DEFAULT_MAX_TOKENS,
+                            },
+                            "title": f"{provider_label} Conversation",
+                            "unique_id": None,
+                        },
+                        {
+                            "subentry_type": SUBENTRY_TYPE_STT,
+                            "data": {CONF_STT_MODEL: stt_model},
+                            "title": f"{provider_label} STT",
+                            "unique_id": None,
+                        },
+                        {
+                            "subentry_type": SUBENTRY_TYPE_AI_TASK,
+                            "data": {
+                                CONF_MODEL: chat_model,
+                                CONF_TEMPERATURE: DEFAULT_TEMPERATURE,
+                                CONF_MAX_TOKENS: DEFAULT_AI_TASK_MAX_TOKENS,
+                            },
+                            "title": f"{provider_label} AI Task",
+                            "unique_id": None,
+                        },
+                    ],
                 )
 
         provider_label = PROVIDER_LABELS.get(self._provider_id, self._provider_id)

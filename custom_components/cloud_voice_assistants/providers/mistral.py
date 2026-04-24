@@ -1,4 +1,4 @@
-"""Mistral AI cloud provider implementation."""
+"""Mistral cloud provider implementation."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ DEFAULT_STT_MODEL = "voxtral-mini-latest"
 
 
 class MistralProvider(CloudProviderBase):
-    """Mistral AI provider.
+    """Mistral provider.
 
     Chat: OpenAI-compatible /chat/completions with SSE streaming.
     STT:  Voxtral /audio/transcriptions (Whisper-compatible multipart).
@@ -53,7 +53,7 @@ class MistralProvider(CloudProviderBase):
         temperature: float,
         max_tokens: int,
     ) -> AsyncGenerator[AssistantContentDeltaDict]:
-        """Stream chat completion deltas from Mistral AI."""
+        """Stream chat completion deltas from Mistral."""
         payload: dict[str, Any] = {
             "model": model,
             "messages": messages,
@@ -122,9 +122,9 @@ class MistralProvider(CloudProviderBase):
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as resp:
                 if resp.status == 401:
-                    raise InvalidAPIKeyError("Invalid Mistral AI API key")
+                    raise InvalidAPIKeyError("Invalid Mistral API key")
                 if resp.status != 200:
                     body = await resp.text()
                     raise CannotConnectError(f"Mistral API returned HTTP {resp.status}: {body}")
         except (aiohttp.ClientError, TimeoutError) as err:
-            raise CannotConnectError(f"Cannot connect to Mistral AI: {err}") from err
+            raise CannotConnectError(f"Cannot connect to Mistral: {err}") from err

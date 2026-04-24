@@ -42,6 +42,46 @@
     }
   },
   "config_subentries": {
+    "ai_task_data": {
+      "entry_type": "AI task",
+      "initiate_flow": {
+        "user": "Add AI task",
+        "reconfigure": "Reconfigure AI task"
+      },
+      "step": {
+        "user": {
+          "title": "Add AI task",
+          "description": "Choose a language model for data generation.",
+          "data": {
+            "model": "Model",
+            "temperature": "Temperature",
+            "max_tokens": "Maximum tokens"
+          },
+          "data_description": {
+            "model": "The language model used for data generation.",
+            "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
+            "max_tokens": "Maximum number of tokens in the model response."
+          }
+        },
+        "reconfigure": {
+          "title": "Reconfigure AI task",
+          "description": "Update the settings for this AI task.",
+          "data": {
+            "model": "Model",
+            "temperature": "Temperature",
+            "max_tokens": "Maximum tokens"
+          },
+          "data_description": {
+            "model": "The language model used for data generation.",
+            "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
+            "max_tokens": "Maximum number of tokens in the model response."
+          }
+        }
+      },
+      "abort": {
+        "reconfigure_successful": "AI task reconfigured successfully."
+      }
+    },
     "conversation": {
       "entry_type": "Conversation agent",
       "initiate_flow": {
@@ -93,12 +133,12 @@
     "stt": {
       "entry_type": "Speech-to-text",
       "initiate_flow": {
-        "user": "Add speech-to-text",
-        "reconfigure": "Reconfigure speech-to-text"
+        "user": "Add speech-to-text service",
+        "reconfigure": "Reconfigure speech-to-text service"
       },
       "step": {
         "user": {
-          "title": "Add speech-to-text",
+          "title": "Add speech-to-text service",
           "description": "Choose the speech-to-text model to use.",
           "data": {
             "stt_model": "Model"
@@ -108,8 +148,8 @@
           }
         },
         "reconfigure": {
-          "title": "Reconfigure speech-to-text",
-          "description": "Update the model for this speech-to-text agent.",
+          "title": "Reconfigure speech-to-text service",
+          "description": "Update the model for this speech-to-text service.",
           "data": {
             "stt_model": "Model"
           },
@@ -119,7 +159,7 @@
         }
       },
       "abort": {
-        "reconfigure_successful": "Speech-to-text reconfigured successfully."
+        "reconfigure_successful": "Speech-to-text service reconfigured successfully."
       }
     }
   }

@@ -17,12 +17,12 @@ from homeassistant.helpers import selector
 
 PROVIDER_OPTIONS = [
     selector.SelectOptionDict(value=PROVIDER_GROQ, label="Groq"),
-    selector.SelectOptionDict(value=PROVIDER_MISTRAL, label="Mistral AI"),
+    selector.SelectOptionDict(value=PROVIDER_MISTRAL, label="Mistral"),
 ]
 
 PROVIDER_LABELS: dict[str, str] = {
     PROVIDER_GROQ: "Groq",
-    PROVIDER_MISTRAL: "Mistral AI",
+    PROVIDER_MISTRAL: "Mistral",
 }
 
 
