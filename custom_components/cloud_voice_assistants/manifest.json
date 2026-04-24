@@ -1,12 +1,14 @@
 {
   "domain": "cloud_voice_assistants",
   "name": "Cloud Voice Assistants",
-  "codeowners": ["@SashaBusinaro"],
+  "codeowners": [
+    "@SashaBusinaro"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/SashaBusinaro/ha-cloud-voice-assistants",
   "integration_type": "service",
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/SashaBusinaro/ha-cloud-voice-assistants/issues",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
