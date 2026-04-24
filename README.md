@@ -20,32 +20,26 @@ Uncomment and customize these badges if you want to use them:
 
 ## ✨ Features
 
-- **Easy Setup**: Simple configuration through the UI - no YAML required
-- **Air Quality Monitoring**: Track AQI and PM2.5 levels in real-time
-- **Filter Management**: Monitor filter life and get replacement alerts
-- **Smart Control**: Adjust fan speed, target humidity, and operating modes
-- **Child Lock**: Safety feature to prevent accidental changes
-- **Diagnostic Info**: View filter life, runtime hours, and device statistics
-- **Reconfigurable**: Change credentials anytime without removing the integration
-- **Options Flow**: Adjust settings like update interval after setup
-- **Custom Services**: Advanced control with built-in service calls
+- **Conversation Agents**: Use fast cloud LLMs (Groq, Mistral AI) as your Home Assistant voice assistant
+- **Speech-to-Text**: Transcribe voice commands using cloud Whisper models
+- **Device Control**: Optionally allow your AI assistant to control Home Assistant entities
+- **Multiple Assistants**: Add as many conversation or STT agents as you need from a single provider account
+- **Customizable Prompts**: Personalize assistant behavior with system prompts and Home Assistant template support
+- **Reconfigurable**: Update your API key anytime without removing the integration
 
-**This integration will set up the following platforms.**
+**This integration sets up the following platforms.**
 
-| Platform        | Description                                              |
-| --------------- | -------------------------------------------------------- |
-| `sensor`        | Air quality index (AQI), PM2.5, filter life, and runtime |
-| `binary_sensor` | API connection status and filter replacement alert       |
-| `switch`        | Child lock and LED display controls                      |
-| `select`        | Fan speed selection (Low/Medium/High/Auto)               |
-| `number`        | Target humidity setting (30-80%)                         |
-| `button`        | Reset filter timer after replacement                     |
-| `fan`           | Air purifier fan control with speed settings             |
+| Platform       | Description                                           |
+| -------------- | ----------------------------------------------------- |
+| `conversation` | AI conversation agent powered by a cloud LLM          |
+| `stt`          | Speech-to-text using a cloud Whisper-compatible model |
 
-> [!TIP]
-> **Interactive Demo:** The entities are interconnected for demonstration.
-> Press the **Reset Filter Timer** button to see **Filter Life Remaining** update to 100%.
-> Changing the **Air Purifier** fan speed syncs the **Fan Speed** select, and vice versa.
+## Supported Providers
+
+| Provider       | Conversation models                                                                  | STT models                                                           |
+| -------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| **Groq**       | llama-3.3-70b-versatile, llama-3.1-8b-instant, llama3-8b-8192, gemma2-9b-it          | whisper-large-v3, whisper-large-v3-turbo, distil-whisper-large-v3-en |
+| **Mistral AI** | ministral-8b-latest, ministral-3b-latest, mistral-small-latest, mistral-large-latest | voxtral-mini-latest                                                  |
 
 ## 🚀 Quick Start
 
@@ -55,7 +49,7 @@ Uncomment and customize these badges if you want to use them:
 
 Click the button below to open the integration directly in HACS:
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jpawlowski&repository=ha-cloud-voice-assistants&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=SashaBusinaro&repository=ha-cloud-voice-assistants&category=integration)
 
 Then:
 
@@ -76,7 +70,7 @@ If you prefer not to use HACS:
 
 </details>
 
-### Step 2: Add and Configure the Integration
+### Step 2: Add the Integration
 
 **Important:** You must have installed the integration first (see Step 1) and restarted Home Assistant!
 
@@ -88,11 +82,9 @@ Click the button below to open the configuration dialog:
 
 Follow the setup wizard:
 
-1. Enter your username
-2. Enter your password
-3. Click Submit
-
-That's it! The integration will start loading your data.
+1. **Select your provider** — choose Groq or Mistral AI
+2. **Enter your API key** — the key is validated before the entry is saved
+3. Click **Submit**
 
 #### Option 2: Manual Configuration
 
@@ -101,171 +93,69 @@ That's it! The integration will start loading your data.
 3. Search for "Cloud Voice Assistants"
 4. Follow the same setup steps as Option 1
 
-### Step 3: Adjust Settings (Optional)
+### Step 3: Add Assistants
 
-After setup, you can adjust options:
+After adding the integration, you can configure individual conversation agents and STT providers using sub-entries:
 
-1. Go to **Settings** → **Devices & Services**
-2. Find **Cloud Voice Assistants**
-3. Click **Configure** to adjust:
-   - Update interval (how often to refresh data)
-   - Enable debug logging
+1. Go to **Settings** → **Devices & Services** → **Cloud Voice Assistants**
+2. Click **"+ Add"** and choose:
+   - **Conversation agent** — adds an LLM-powered chat assistant
+   - **Speech-to-text** — adds a Whisper STT provider
+3. Configure the assistant:
+   - For conversation: choose a model, set a system prompt, and optionally enable Home Assistant device control
+   - For STT: choose a transcription model
 
-You can also **Reconfigure** your credentials anytime without removing the integration.
+You can add multiple conversation agents and STT providers from the same account.
 
-### Step 4: Start Using!
+### Step 4: Use Your Assistant
 
-The integration creates several entities for your air purifier:
+**As a conversation agent:**
+Go to **Settings** → **Voice Assistants** and select your new conversation agent for any voice pipeline. It will appear as a selectable agent alongside the built-in Assist.
 
-- **Sensors**: Air quality index, PM2.5 levels, filter life remaining, total runtime
-- **Binary Sensors**: API connection status, filter replacement alert
-- **Switches**: Child lock, LED display control
-- **Select**: Fan speed (Low/Medium/High/Auto)
-- **Number**: Target humidity (30-80%)
-- **Button**: Reset filter timer
-- **Fan**: Air purifier fan control
-
-Find all entities in **Settings** → **Devices & Services** → **Cloud Voice Assistants** → click on the device.
-
-## Available Entities
-
-### Sensors
-
-- **Air Quality Index (AQI)**: Real-time air quality measurement (0-500 scale)
-  - Includes air quality category (Good/Moderate/Unhealthy/etc.)
-  - Health recommendations based on current AQI
-- **PM2.5**: Fine particulate matter concentration in µg/m³
-- **Filter Life Remaining** (Diagnostic): Shows remaining filter life as percentage
-- **Total Runtime** (Diagnostic): Total operating hours of the device
-
-### Binary Sensors
-
-- **API Connection**: Shows whether the connection to the API is active
-  - On: Connected and receiving data
-  - Off: Connection lost or authentication failed
-  - Shows update interval and API endpoint information
-- **Filter Replacement Needed**: Alerts when filter needs replacement
-  - Shows estimated days remaining
-  - Turns on when filter life is low
-
-### Switches
-
-- **Child Lock**: Prevents accidental button presses on the device
-  - Icon changes based on state (locked/unlocked)
-- **LED Display**: Enable/disable the LED display
-  - Disabled by default - enable in entity settings if needed
-
-### Select
-
-- **Fan Speed**: Choose from Low, Medium, High, or Auto
-  - Icon changes dynamically based on selected speed
-  - Auto mode adjusts speed based on air quality
-  - Syncs bidirectionally with the Air Purifier fan entity
-
-### Number
-
-- **Target Humidity**: Set desired humidity level (30-80%)
-  - Adjustable in 5% increments
-  - Displayed as a slider in the UI
-
-### Button
-
-- **Reset Filter Timer**: Reset the filter life to 100%
-  - Press to reset after replacing the filter
-  - Instantly updates the Filter Life Remaining sensor
-
-### Fan
-
-- **Air Purifier**: Control the air purifier fan speed and power
-  - Three speed levels: Low, Medium, High
-  - Syncs bidirectionally with the Fan Speed select entity
-  - Turn on/off functionality
-
-## Custom Services
-
-The integration provides services for advanced automation:
-
-### `cloud_voice_assistants.example_action`
-
-Perform a custom action (customize this for your needs).
-
-**Example:**
-
-```yaml
-service: cloud_voice_assistants.example_action
-data:
-  # Add your parameters here
-```
-
-### `cloud_voice_assistants.reload_data`
-
-Manually refresh data from the API without waiting for the update interval.
-
-**Example:**
-
-```yaml
-service: cloud_voice_assistants.reload_data
-```
-
-Use these services in automations or scripts for more control.
+**As an STT provider:**
+Go to **Settings** → **Voice Assistants** and select your new STT provider in a voice pipeline.
 
 ## Configuration Options
 
-### During Setup
+### During Provider Setup
 
-| Name     | Required | Description           |
-| -------- | -------- | --------------------- |
-| Username | Yes      | Your account username |
-| Password | Yes      | Your account password |
+| Name     | Required | Description                            |
+| -------- | -------- | -------------------------------------- |
+| Provider | Yes      | Cloud AI provider (Groq or Mistral AI) |
+| API Key  | Yes      | Your provider API key                  |
 
-### After Setup (Options)
+### Conversation Agent Options
 
-You can change these anytime by clicking **Configure**:
+| Name                   | Default                    | Description                                            |
+| ---------------------- | -------------------------- | ------------------------------------------------------ |
+| Model                  | Provider default           | Language model used for conversation                   |
+| System prompt          | Built-in smart-home prompt | Customizable prompt; supports HA templates             |
+| Control Home Assistant | Off                        | Which HA LLM APIs the agent may use to control devices |
+| Temperature            | 1.0                        | Sampling temperature (0 = deterministic, 1 = creative) |
+| Maximum tokens         | 1024                       | Maximum tokens in the model response                   |
 
-| Name             | Default | Description                |
-| ---------------- | ------- | -------------------------- |
-| Update Interval  | 1 hour  | How often to refresh data  |
-| Enable Debugging | Off     | Enable extra debug logging |
+### STT Options
+
+| Name  | Required | Description                                 |
+| ----- | -------- | ------------------------------------------- |
+| Model | Yes      | Speech-to-text model used for transcription |
 
 ## Troubleshooting
 
 ### Authentication Issues
 
-#### Reauthentication
-
-If your credentials expire or change, Home Assistant will automatically prompt you to reauthenticate:
+If your API key is rejected or expires, Home Assistant will prompt you to reauthenticate:
 
 1. Go to **Settings** → **Devices & Services**
-2. Look for **"Action Required"** or **"Configuration Required"** message on the integration
-3. Click **"Reconfigure"** or follow the prompt
-4. Enter your updated credentials
-5. Click Submit
+2. Look for **"Action Required"** on the Cloud Voice Assistants entry
+3. Click **"Reconfigure"** and enter a new API key
 
-The integration will automatically resume normal operation with the new credentials.
+You can also update your key at any time without waiting for an error:
 
-#### Manual Credential Update
-
-You can also update credentials at any time without waiting for an error:
-
-1. Go to **Settings** → **Devices & Services**
-2. Find **Cloud Voice Assistants**
-3. Click the **3 dots menu** → **Reconfigure**
-4. Enter new username/password
-5. Click Submit
-
-#### Connection Status
-
-Monitor your connection status with the **API Connection** binary sensor:
-
-- **On** (Connected): Integration is receiving data normally
-- **Off** (Disconnected): Connection lost or authentication failed
-  - Check the binary sensor attributes for diagnostic information
-  - Verify credentials if authentication failed
-  - Check network connectivity
+1. Go to **Settings** → **Devices & Services** → **Cloud Voice Assistants**
+2. Click the **3 dots menu** → **Reconfigure**
 
 ### Enable Debug Logging
-
-To enable debug logging for this integration, add the following to your `configuration.yaml`:
 
 ```yaml
 logger:
@@ -276,23 +166,21 @@ logger:
 
 ### Common Issues
 
-#### Authentication Errors
+#### "Invalid API key" during setup
 
-If you receive authentication errors:
+- Verify the key is correct and active in your provider's dashboard
+- Make sure the key has the required scopes (Groq and Mistral AI use full-access keys by default)
 
-1. Verify your username and password are correct
-2. Check that your account has the necessary permissions
-3. Wait for the automatic reauthentication prompt, or manually reconfigure
-4. Check the API Connection binary sensor for status
+#### Conversation agent not appearing in voice pipelines
 
-#### Device Not Responding
+- Ensure Home Assistant was restarted after installation
+- Check that a conversation sub-entry was added under the integration
 
-If your device is not responding:
+#### Slow or no response
 
-1. Check the **API Connection** binary sensor - it should be "On"
-2. Check your network connection
-3. Verify the device is powered on
-4. Check the integration diagnostics (Settings → Devices & Services → Cloud Voice Assistants → 3 dots → Download diagnostics)
+- Groq provides very fast inference; Mistral AI may be slower for large models
+- Check your network connection
+- Enable debug logging and look for HTTP errors in the log
 
 ## 🤝 Contributing
 
@@ -383,9 +271,7 @@ You'll need these installed locally:
 ## 🤖 AI-Assisted Development
 
 > [!NOTE]
-> **Transparency Notice:** This integration was developed with assistance from AI coding agents (GitHub Copilot, Claude, and others). While the codebase follows Home Assistant Core standards, AI-generated code may not be reviewed or tested to the same extent as manually written code. AI tools were used to generate boilerplate code, implement standard integration features (config flow, coordinator, entities), ensure code quality and type safety, and write documentation. If you encounter unexpected behavior, please [open an issue](../../issues) on GitHub.
->
-> _This section can be removed or modified if AI assistance was not used in your integration's development._
+> **Transparency Notice:** This integration was developed with assistance from AI coding agents (GitHub Copilot, Claude, and others). While the codebase follows Home Assistant Core standards, AI-generated code may not be reviewed or tested to the same extent as manually written code. AI tools were used to generate boilerplate code, implement standard integration features (config flow, conversation entities, STT providers), ensure code quality and type safety, and write documentation. If you encounter unexpected behavior, please [open an issue](../../issues) on GitHub.
 
 ---
 
@@ -407,10 +293,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [maintenance-shield]: https://img.shields.io/badge/maintainer-%40SashaBusinaro-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/SashaBusinaro/ha-cloud-voice-assistants.svg?style=for-the-badge
 [releases]: https://github.com/SashaBusinaro/ha-cloud-voice-assistants/releases
-[user_profile]: https://github.com/jpawlowski
+[user_profile]: https://github.com/SashaBusinaro
 
 <!-- Optional badge definitions - uncomment if needed:
-[buymecoffee]: https://www.buymeacoffee.com/jpawlowski
+[buymecoffee]: https://www.buymeacoffee.com/SashaBusinaro
 [buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
 [discord]: https://discord.gg/Qa5fW2R
 [discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge

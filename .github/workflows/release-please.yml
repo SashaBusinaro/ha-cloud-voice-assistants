@@ -17,8 +17,6 @@ permissions:
 jobs:
   release-please:
     name: Release Please
-    # Skip when running inside the template repository itself
-    if: github.repository != 'SashaBusinaro/ha-cloud-voice-assistants'
     runs-on: ubuntu-latest
     steps:
       - name: Run release-please
