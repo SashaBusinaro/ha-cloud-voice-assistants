@@ -1,125 +1,60 @@
-"""
-Config flow schemas.
+"""Config flow schemas for Cloud Voice Assistants.
 
-Schemas for the main configuration flow steps:
-- User setup
-- Reconfiguration
-- Reauthentication
-
-When this file grows too large (>300 lines), consider splitting into:
-- user.py: User setup schemas
-- reauth.py: Reauthentication schemas
-- reconfigure.py: Reconfiguration schemas
+Schemas for:
+- Provider selection (step_user)
+- API key entry (step_credentials)
+- Reauthentication (step_reauth_confirm)
+- Reconfiguration (step_reconfigure)
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any
-
 import voluptuous as vol
 
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from custom_components.cloud_voice_assistants.const import CONF_PROVIDER, PROVIDER_GROQ, PROVIDER_MISTRAL
+from homeassistant.const import CONF_API_KEY
 from homeassistant.helpers import selector
 
+PROVIDER_OPTIONS = [
+    selector.SelectOptionDict(value=PROVIDER_GROQ, label="Groq"),
+    selector.SelectOptionDict(value=PROVIDER_MISTRAL, label="Mistral AI"),
+]
 
-def get_user_schema(defaults: Mapping[str, Any] | None = None) -> vol.Schema:
-    """
-    Get schema for user step (initial setup).
+PROVIDER_LABELS: dict[str, str] = {
+    PROVIDER_GROQ: "Groq",
+    PROVIDER_MISTRAL: "Mistral AI",
+}
 
-    Args:
-        defaults: Optional dictionary of default values to pre-populate the form.
 
-    Returns:
-        Voluptuous schema for user credentials input.
-
-    """
-    defaults = defaults or {}
+def get_provider_schema() -> vol.Schema:
+    """Schema for the provider selection step."""
     return vol.Schema(
         {
-            vol.Required(
-                CONF_USERNAME,
-                default=defaults.get(CONF_USERNAME, vol.UNDEFINED),
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(
-                    type=selector.TextSelectorType.TEXT,
-                ),
+            vol.Required(CONF_PROVIDER): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=PROVIDER_OPTIONS,
+                    mode=selector.SelectSelectorMode.LIST,
+                )
             ),
-            vol.Required(CONF_PASSWORD): selector.TextSelector(
-                selector.TextSelectorConfig(
-                    type=selector.TextSelectorType.PASSWORD,
-                ),
-            ),
-        },
+        }
     )
 
 
-def get_reconfigure_schema(username: str) -> vol.Schema:
-    """
-    Get schema for reconfigure step.
-
-    Args:
-        username: Current username to pre-fill in the form.
-
-    Returns:
-        Voluptuous schema for reconfiguration.
-
-    """
+def get_credentials_schema() -> vol.Schema:
+    """Schema for the API key entry step."""
     return vol.Schema(
         {
-            vol.Required(
-                CONF_USERNAME,
-                default=username,
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(
-                    type=selector.TextSelectorType.TEXT,
-                ),
-            ),
-            vol.Required(
-                CONF_PASSWORD,
-            ): selector.TextSelector(
+            vol.Required(CONF_API_KEY): selector.TextSelector(
                 selector.TextSelectorConfig(
                     type=selector.TextSelectorType.PASSWORD,
-                ),
+                )
             ),
-        },
-    )
-
-
-def get_reauth_schema(username: str) -> vol.Schema:
-    """
-    Get schema for reauthentication step.
-
-    Args:
-        username: Current username to pre-fill in the form.
-
-    Returns:
-        Voluptuous schema for reauthentication.
-
-    """
-    return vol.Schema(
-        {
-            vol.Required(
-                CONF_USERNAME,
-                default=username,
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(
-                    type=selector.TextSelectorType.TEXT,
-                ),
-            ),
-            vol.Required(
-                CONF_PASSWORD,
-            ): selector.TextSelector(
-                selector.TextSelectorConfig(
-                    type=selector.TextSelectorType.PASSWORD,
-                ),
-            ),
-        },
+        }
     )
 
 
 __all__ = [
-    "get_reauth_schema",
-    "get_reconfigure_schema",
-    "get_user_schema",
+    "PROVIDER_LABELS",
+    "get_credentials_schema",
+    "get_provider_schema",
 ]

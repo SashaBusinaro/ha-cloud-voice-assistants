@@ -2,151 +2,124 @@
   "config": {
     "step": {
       "user": {
-        "description": "If you need help with the configuration have a look at the [documentation]({documentation_url}).",
+        "title": "Select Provider",
+        "description": "Choose the cloud AI provider to configure.",
         "data": {
-          "username": "Username",
-          "password": "Password"
+          "provider": "Provider"
         }
       },
-      "reconfigure": {
-        "description": "Update the credentials for this integration.",
+      "credentials": {
+        "title": "Enter API Key",
+        "description": "Enter your {provider} API key. The key will be validated before the entry is created.",
         "data": {
-          "username": "Username",
-          "password": "Password"
+          "api_key": "API Key"
         }
       },
       "reauth_confirm": {
-        "title": "Reauthenticate Integration",
-        "description": "The credentials for {username} are no longer valid. Please provide updated credentials to restore access.",
+        "title": "Re-enter API Key",
+        "description": "The {provider} API key is no longer valid. Please enter a new API key.",
         "data": {
-          "username": "Username",
-          "password": "Password"
+          "api_key": "API Key"
+        }
+      },
+      "reconfigure": {
+        "title": "Update API Key",
+        "description": "Enter a new API key for {provider}.",
+        "data": {
+          "api_key": "API Key"
         }
       }
     },
     "error": {
-      "auth": "Username/Password is wrong.",
-      "connection": "Unable to connect to the server.",
-      "unknown": "Unknown error occurred."
+      "invalid_auth": "Invalid API key — please check and try again.",
+      "cannot_connect": "Cannot connect to the provider. Check your network and try again.",
+      "unknown": "An unexpected error occurred."
     },
     "abort": {
-      "already_configured": "This entry is already configured."
+      "already_configured": "This provider is already configured.",
+      "reauth_successful": "Re-authentication was successful.",
+      "reconfigure_successful": "Reconfiguration was successful."
     }
   },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Configure Integration Options",
-        "description": "Customize how this integration operates.",
-        "data": {
-          "update_interval_hours": "Update interval (hours)",
-          "enable_debugging": "Enable debug logging",
-          "custom_icon": "Custom icon (optional)"
+  "config_subentries": {
+    "conversation": {
+      "entry_type": "Conversation agent",
+      "initiate_flow": {
+        "user": "Add conversation agent",
+        "reconfigure": "Reconfigure conversation agent"
+      },
+      "step": {
+        "user": {
+          "title": "Add conversation agent",
+          "description": "Choose a language model and configure its behaviour.",
+          "data": {
+            "model": "Model",
+            "prompt": "System prompt",
+            "llm_hass_api": "Control Home Assistant",
+            "temperature": "Temperature",
+            "max_tokens": "Maximum tokens"
+          },
+          "data_description": {
+            "model": "The language model used for conversation.",
+            "prompt": "System prompt template (supports Home Assistant templates).",
+            "llm_hass_api": "Select which Home Assistant APIs the AI can use to control your devices. 'Assist' exposes the same entities as the built-in voice assistant.",
+            "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
+            "max_tokens": "Maximum number of tokens in the model response."
+          }
         },
-        "data_description": {
-          "update_interval_hours": "How often to refresh data from the API (0.25 to 24 hours)",
-          "enable_debugging": "Enable detailed debug logging for troubleshooting",
-          "custom_icon": "Override the default icon for entities (optional)"
-        }
-      }
-    }
-  },
-  "exceptions": {
-    "authentication_failed": {
-      "message": "Authentication failed during data update."
-    },
-    "update_failed": {
-      "message": "Failed to update data from the server."
-    },
-    "switch_turn_on_failed": {
-      "message": "Failed to turn on the switch."
-    },
-    "switch_turn_off_failed": {
-      "message": "Failed to turn off the switch."
-    },
-    "number_set_failed": {
-      "message": "Failed to set the target value."
-    }
-  },
-  "entity": {
-    "sensor": {
-      "air_quality_index": {
-        "name": "Air Quality Index"
-      },
-      "pm25": {
-        "name": "PM2.5"
-      },
-      "filter_life": {
-        "name": "Filter Life Remaining"
-      },
-      "runtime": {
-        "name": "Total Runtime"
-      }
-    },
-    "binary_sensor": {
-      "api_connectivity": {
-        "name": "API Connection"
-      },
-      "filter_replacement": {
-        "name": "Filter Replacement Needed"
-      }
-    },
-    "switch": {
-      "child_lock": {
-        "name": "Child Lock"
-      },
-      "led_display": {
-        "name": "LED Display"
-      }
-    },
-    "select": {
-      "fan_speed": {
-        "name": "Fan Speed",
-        "state": {
-          "low": "Low",
-          "medium": "Medium",
-          "high": "High",
-          "auto": "Auto"
-        }
-      }
-    },
-    "number": {
-      "target_humidity": {
-        "name": "Target Humidity"
-      }
-    },
-    "button": {
-      "reset_filter": {
-        "name": "Reset Filter Timer"
-      }
-    },
-    "fan": {
-      "air_purifier": {
-        "name": "Air Purifier"
-      }
-    }
-  },
-  "issues": {
-    "deprecated_api_endpoint": {
-      "title": "Deprecated API Endpoint",
-      "fix_flow": {
-        "step": {
-          "init": {
-            "title": "Update API Endpoint",
-            "description": "Your device is using API version {api_version} which is deprecated. Please update to v2 for continued support and new features.\n\nClick Submit to update your device to use the new API endpoint (v2). This will reload the integration."
+        "reconfigure": {
+          "title": "Reconfigure conversation agent",
+          "description": "Update the settings for this conversation agent.",
+          "data": {
+            "model": "Model",
+            "prompt": "System prompt",
+            "llm_hass_api": "Control Home Assistant",
+            "temperature": "Temperature",
+            "max_tokens": "Maximum tokens"
+          },
+          "data_description": {
+            "model": "The language model used for conversation.",
+            "prompt": "System prompt template (supports Home Assistant templates).",
+            "llm_hass_api": "Select which Home Assistant APIs the AI can use to control your devices. 'Assist' exposes the same entities as the built-in voice assistant.",
+            "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
+            "max_tokens": "Maximum number of tokens in the model response."
           }
         }
+      },
+      "abort": {
+        "reconfigure_successful": "Conversation agent reconfigured successfully."
       }
     },
-    "missing_configuration": {
-      "title": "Missing Configuration",
-      "fix_flow": {
-        "step": {
-          "init": {
-            "title": "Acknowledge Configuration Issue",
-            "description": "Some configuration options are missing or invalid. Please reconfigure the integration to ensure proper operation.\n\nClick Submit to acknowledge this issue. You may need to reconfigure the integration if problems persist."
+    "stt": {
+      "entry_type": "Speech-to-text",
+      "initiate_flow": {
+        "user": "Add speech-to-text",
+        "reconfigure": "Reconfigure speech-to-text"
+      },
+      "step": {
+        "user": {
+          "title": "Add speech-to-text",
+          "description": "Choose the speech-to-text model to use.",
+          "data": {
+            "stt_model": "Model"
+          },
+          "data_description": {
+            "stt_model": "The model used for speech-to-text transcription."
+          }
+        },
+        "reconfigure": {
+          "title": "Reconfigure speech-to-text",
+          "description": "Update the model for this speech-to-text agent.",
+          "data": {
+            "stt_model": "Model"
+          },
+          "data_description": {
+            "stt_model": "The model used for speech-to-text transcription."
           }
         }
+      },
+      "abort": {
+        "reconfigure_successful": "Speech-to-text reconfigured successfully."
       }
     }
   }
