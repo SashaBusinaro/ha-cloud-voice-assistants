@@ -5,11 +5,6 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from homeassistant.components import ai_task, conversation
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-
 from custom_components.cloud_voice_assistants.const import (
     CONF_MAX_TOKENS,
     CONF_MODEL,
@@ -21,12 +16,15 @@ from custom_components.cloud_voice_assistants.const import (
     SUBENTRY_TYPE_AI_TASK,
 )
 from custom_components.cloud_voice_assistants.conversation.helpers import async_run_llm_loop
+from homeassistant.components import ai_task, conversation
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 if TYPE_CHECKING:
+    from custom_components.cloud_voice_assistants.data import CloudVoiceAssistantsConfigEntry
     from homeassistant.config_entries import ConfigSubentry
     from homeassistant.core import HomeAssistant
-
-    from custom_components.cloud_voice_assistants.data import CloudVoiceAssistantsConfigEntry
 
 
 async def async_setup_entry(
