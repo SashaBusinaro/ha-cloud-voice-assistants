@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/SashaBusinaro/ha-cloud-voice-assistants/compare/v0.1.2...v0.1.3) (2026-04-25)
+
+
+### Features
+
+* **ai-task:** add AI task platform with generate-data support ([86aacf1](https://github.com/SashaBusinaro/ha-cloud-voice-assistants/commit/86aacf12868f76f5d227194779cad03661d0db7f))
+
 ## [0.1.2](https://github.com/SashaBusinaro/ha-cloud-voice-assistants/compare/v0.1.1...v0.1.2) (2026-04-24)
 
 
