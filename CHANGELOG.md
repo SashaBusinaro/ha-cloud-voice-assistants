@@ -2,6 +2,14 @@
 
 <!-- markdownlint-disable MD024 -->
 
+## [0.1.4](https://github.com/SashaBusinaro/ha-cloud-voice-assistants/compare/v0.1.3...v0.1.4) (2026-04-25)
+
+
+### Bug Fixes
+
+* **ci:** lint ([9fbae02](https://github.com/SashaBusinaro/ha-cloud-voice-assistants/commit/9fbae02dccbbc4b6313314b0fa6faf5a109018fe))
+* **lint:** resolve markdownlint duplicate heading errors ([93c2b24](https://github.com/SashaBusinaro/ha-cloud-voice-assistants/commit/93c2b242ad0529b67562b7a50f8ff30d39ccca2d))
+
 ## [0.1.3](https://github.com/SashaBusinaro/ha-cloud-voice-assistants/compare/v0.1.2...v0.1.3) (2026-04-25)
 
 ### Features
