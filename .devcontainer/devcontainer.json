@@ -41,7 +41,7 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.14"
+      "version": "3.13"
     },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts"
@@ -58,6 +58,13 @@
         "eza",
         "fd-find",
         "ffmpeg",
+        "libavcodec-dev",
+        "libavdevice-dev",
+        "libavfilter-dev",
+        "libavformat-dev",
+        "libavutil-dev",
+        "libswresample-dev",
+        "libswscale-dev",
         "fzf",
         "git-delta",
         "httpie",

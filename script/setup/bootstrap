@@ -56,6 +56,11 @@ if ! command -v uv >/dev/null 2>&1; then
     log_info "UV not found, installing..."
     pipx install uv
 fi
+# Capture the uv path before activating the venv. After activation,
+# $VENV_PATH/bin may be prepended to PATH and uv might resolve to a shim
+# inside the venv (if it was cached from a previous run), which would cause
+# issues when recreating the venv due to HA version mismatch.
+UV_BIN="$(command -v uv)"
 
 log_header "Checking for Python virtual environment"
 
@@ -223,7 +228,10 @@ if [[ -f "$HA_VERSION_MARKER" ]]; then
         # Use find instead of rm -rf: the path may be a named Docker volume mount point
         # which cannot be removed itself — only its contents can be deleted.
         find "$VENV_PATH" -mindepth 1 -delete
-        uv venv "$VENV_PATH"
+        # Use absolute path to uv (captured before venv activation) to avoid resolving to
+        # $VENV_PATH/bin/uv which was just deleted. `uv venv` places a shim at that location
+        # which becomes the primary uv in PATH after sourcing activate.
+        "$UV_BIN" venv "$VENV_PATH"
         # shellcheck source=/dev/null
         source "$VENV_PATH/bin/activate"
     fi
