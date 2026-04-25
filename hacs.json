@@ -1,5 +1,5 @@
 {
   "name": "Cloud Voice Assistants",
-  "homeassistant": "2025.7.0",
+  "homeassistant": "latest",
   "hacs": "2.0.5"
 }
