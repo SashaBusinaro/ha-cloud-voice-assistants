@@ -14,223 +14,184 @@
 [license-badge]: https://img.shields.io/github/license/SashaBusinaro/ha-cloud-voice-assistants?style=for-the-badge
 [license-url]: https://github.com/SashaBusinaro/ha-cloud-voice-assistants/blob/main/LICENSE
 
-A production-ready GitHub template for building **HACS-compatible Home Assistant custom integrations** — CI/CD, automated releases, pre-commit hooks and Dependabot pre-configured out of the box.
+A Home Assistant custom integration that connects **Groq** and **Mistral** cloud APIs to your smart home. Each provider entry creates a ready-to-use conversation agent, speech-to-text provider, and AI task entity — all configurable from the UI.
+
+**Requires Home Assistant 2025.6 or newer.**
+
+---
+
+## Features
+
+- **Conversation agent** — streaming LLM assistant that understands your home and can control devices when the HA LLM API is enabled
+- **Speech-to-text (STT)** — Whisper-compatible transcription in 57+ languages, plugs directly into the Assist pipeline
+- **AI Task** — structured and unstructured data generation for automations and scripts
+- **Two providers out of the box** — Groq and Mistral, each with multiple model choices
+- **Fully UI-configured** — model, system prompt, temperature, and token limit all editable without YAML
+
+---
+
+## Supported providers and models
+
+### Groq
+
+| Type | Models |
+|---|---|
+| Chat | `llama-3.3-70b-versatile` *(default)*, `llama-3.1-8b-instant`, `llama3-8b-8192`, `gemma2-9b-it` |
+| STT | `whisper-large-v3-turbo` *(default)*, `whisper-large-v3`, `distil-whisper-large-v3-en` |
+
+Get a free API key at [console.groq.com](https://console.groq.com/).
+
+### Mistral
+
+| Type | Models |
+|---|---|
+| Chat | `ministral-8b-latest` *(default)*, `ministral-3b-latest`, `mistral-small-latest`, `mistral-large-latest` |
+| STT | `voxtral-mini-latest` *(default)* |
+
+Get an API key at [console.mistral.ai](https://console.mistral.ai/).
 
 ---
 
 ## Installation
 
-### Step 1: Install the Integration
+### Step 1 — Install via HACS
 
-**Prerequisites:** This integration requires [HACS](https://hacs.xyz/) (Home Assistant Community Store) to be installed.
-
-Click the button below to open the integration directly in HACS:
+**Prerequisite:** [HACS](https://hacs.xyz/) must be installed.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=SashaBusinaro&repository=ha-cloud-voice-assistants&category=integration)
 
-Then:
-
-1. Click "Download" to install the integration
-2. **Restart Home Assistant** (required after installation)
-
-> [!NOTE]
-> The My Home Assistant redirect will first take you to a landing page. Click the button there to open your Home Assistant instance.
+1. Click **Download**
+2. **Restart Home Assistant**
 
 <details>
-<summary><strong>Manual Installation (Advanced)</strong></summary>
-
-If you prefer not to use HACS:
+<summary>Manual installation</summary>
 
 1. Download the `custom_components/cloud_voice_assistants/` folder from this repository
-2. Copy it to your Home Assistant's `custom_components/` directory
+2. Copy it into your Home Assistant `custom_components/` directory
 3. Restart Home Assistant
 
 </details>
 
-### Step 2: Configure the Integration
-
-**Important:** Complete Step 1 and restart Home Assistant before proceeding.
-
-#### Option 1: One-Click Setup
+### Step 2 — Add the integration
 
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=cloud_voice_assistants)
 
-#### Option 2: Manual Setup
+Or go to **Settings → Devices & Services → + Add Integration** and search for **Cloud Voice Assistants**.
 
-1. Go to **Settings** → **Devices & Services**
-2. Click **"+ Add Integration"**
-3. Search for "Cloud Voice Assistants"
-4. Follow the setup wizard
+The setup wizard will ask you to:
+
+1. Select a provider (Groq or Mistral)
+2. Enter your API key — it is validated immediately against the provider's API
+
+Once saved, three sub-entries are created automatically:
+
+| Sub-entry | What it creates |
+|---|---|
+| `<Provider> Conversation` | A `conversation` entity for the Assist pipeline |
+| `<Provider> STT` | An `stt` entity for speech-to-text |
+| `<Provider> AI Task` | An `ai_task` entity for data generation |
+
+You can add more sub-entries of any type later from the integration's options.
 
 ---
 
-## What's included
+## Configuration
 
-| Tool | What it does |
-|---|---|
-| **hassfest** | Validates `manifest.json`, translations and component structure on every push |
-| **HACS validation** | Checks that the integration meets [HACS requirements](https://hacs.xyz/docs/publish/requirements) |
-| **Ruff** (CI) | Lint and format check on every push and PR |
-| **Pre-commit** | Ruff + JSON/YAML/whitespace checks before every local commit |
-| **release-please** | Opens a Release PR automatically on every Conventional Commit merged to `main`; bumps `manifest.json` version and generates `CHANGELOG.md` |
-| **Dependabot** | Weekly grouped PRs for GitHub Actions and Python dev-deps |
-| **devcontainer** | One-click Home Assistant dev environment in VS Code |
+### Conversation sub-entry
+
+| Option | Default | Description |
+|---|---|---|
+| Model | `llama-3.3-70b-versatile` / `ministral-8b-latest` | LLM model to use |
+| System prompt | Built-in template | Jinja2 template sent as the system message |
+| HA LLM APIs | *(none)* | Enable to let the assistant control Home Assistant devices via tool calls |
+| Temperature | `1.0` | Creativity (0 = deterministic, 1 = most varied) |
+| Max tokens | `1024` | Maximum length of each reply |
+
+The default system prompt introduces the assistant, asks it to match the user's language, and injects the current date and the home's name via Jinja2:
+
+```
+You are a helpful voice assistant for a smart home called {{ ha_name }}.
+Answer in the same language the user speaks.
+Be concise and friendly.
+Today is {{ now().strftime('%A, %B %d, %Y') }}.
+```
+
+### STT sub-entry
+
+| Option | Default | Description |
+|---|---|---|
+| STT model | `whisper-large-v3-turbo` / `voxtral-mini-latest` | Transcription model to use |
+
+The STT entity accepts 16-bit PCM audio at 16 kHz (mono) — the standard format produced by the HA Assist pipeline.
+
+**Supported languages:** Afrikaans, Arabic, Azerbaijani, Belarusian, Bulgarian, Bosnian, Catalan, Czech, Welsh, Danish, German, Greek, English, Spanish, Estonian, Persian, Finnish, French, Galician, Hebrew, Hindi, Croatian, Hungarian, Armenian, Indonesian, Icelandic, Italian, Japanese, Kazakh, Kannada, Korean, Lithuanian, Latvian, Macedonian, Malayalam, Marathi, Malay, Maltese, Burmese, Norwegian Bokmål, Nepali, Dutch, Polish, Portuguese, Romanian, Russian, Slovak, Slovenian, Serbian, Swedish, Swahili, Tamil, Thai, Filipino, Turkish, Ukrainian, Urdu, Vietnamese, Chinese.
+
+### AI Task sub-entry
+
+| Option | Default | Description |
+|---|---|---|
+| Model | `llama-3.3-70b-versatile` / `ministral-8b-latest` | LLM model to use |
+| Temperature | `1.0` | Creativity |
+| Max tokens | `4096` | Maximum output length |
+
+The AI Task entity can generate free-form text or structured JSON. Use it in automations with the `ai_task.generate_data` action.
 
 ---
 
-## File structure
+## Using the conversation agent with Assist
 
-| File / Directory | Purpose |
-|---|---|
-| `.devcontainer.json` | VS Code dev container — live HA instance for testing |
-| `.editorconfig` | Editor-agnostic indentation and EOL rules |
-| `.github/dependabot.yml` | Automated dependency updates (weekly, grouped) |
-| `.github/ISSUE_TEMPLATE/*.yml` | Bug report and feature request templates |
-| `.github/PULL_REQUEST_TEMPLATE.md` | Pull request checklist (Conventional Commits) |
-| `.github/workflows/lint.yml` | Ruff lint + format check |
-| `.github/workflows/validate.yml` | hassfest and HACS validation |
-| `.github/workflows/release-please.yml` | Automated releases via Conventional Commits |
-| `.pre-commit-config.yaml` | Pre-commit hooks (JSON/YAML, Ruff, codespell) |
-| `.ruff.toml` | Ruff configuration (aligned with HA Core) |
-| `.vscode/extensions.json` | Recommended VS Code extensions (mirrors devcontainer) |
-| `.vscode/launch.json` | F5 debug configuration for Home Assistant |
-| `.vscode/tasks.json` | VS Code tasks for Setup / Lint / Run Home Assistant |
-| `release-please-config.json` | release-please configuration |
-| `.release-please-manifest.json` | Current version tracking for release-please |
-| `AGENTS.md` | Guidance for AI agents working in this repo |
-| `CHANGELOG.md` | Auto-generated changelog (managed by release-please) |
-| `config/configuration.yaml` | HA config loaded by the devcontainer |
-| `custom_components/cloud_voice_assistants/` | Integration source — rename to your domain |
-| `hacs.json` | HACS metadata (integration name, minimum HA version) |
-| `scripts/` | Helper scripts: `setup` (install deps), `lint` (format + check), `develop` (run HA) |
-| `requirements.txt` | Dev / lint Python dependencies |
-| `CONTRIBUTING.md` | Contribution guidelines |
+1. Go to **Settings → Voice Assistants**
+2. Create or edit an assistant
+3. Set the **Conversation agent** to your `<Provider> Conversation` entity
+4. Set the **Speech-to-text** engine to your `<Provider> STT` entity
+5. Talk to your home
+
+### Enabling device control
+
+To allow the assistant to turn lights on, control the thermostat, and so on:
+
+1. Open **Settings → Devices & Services → Cloud Voice Assistants**
+2. Click **Configure** on the Conversation sub-entry
+3. Under **HA LLM APIs**, select **Assist** (or any other HA LLM API)
+
+The assistant will then use function calling to interact with Home Assistant entities, limited to 10 tool-call round-trips per turn.
 
 ---
 
-## Pre-commit
+## Diagnostics
 
-Pre-commit runs a set of fast checks before every `git commit`, catching issues locally
-before they reach CI.
+Download diagnostics from **Settings → Devices & Services → Cloud Voice Assistants → Download diagnostics**. The report includes the provider name, enabled models, and sub-entry configuration. **The API key is always redacted.**
 
-### Hooks included
+---
 
-| Hook | What it checks |
-|---|---|
-| `check-json` | Validates `manifest.json`, `translations/*.json`, `hacs.json` |
-| `check-yaml` | Validates all workflow and config `.yml` files |
-| `trailing-whitespace` | Removes trailing spaces |
-| `end-of-file-fixer` | Ensures files end with a newline |
-| `check-merge-conflict` | Blocks accidental merge-conflict markers |
-| `ruff` | Lints Python and auto-fixes safe issues |
-| `ruff-format` | Formats Python code |
-| `codespell` | Catches common typos in code, comments and docs |
+## Reconfiguring an API key
 
-### Common commands
+If your key expires or is rotated:
+
+1. Go to **Settings → Devices & Services → Cloud Voice Assistants**
+2. Click the three-dot menu → **Reconfigure**
+3. Enter the new API key
+
+Home Assistant will re-validate the key before saving.
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). The short version:
 
 ```bash
-# Install hooks (once per clone — handled by scripts/setup)
+# one-time setup
 scripts/setup
 
-# Run manually on all files
-pre-commit run --all-files
+# run linters
+scripts/lint
 
-# Run a single hook
-pre-commit run ruff --all-files
-
-# Update hooks to latest pinned versions
-pre-commit autoupdate
+# start a live HA instance with the integration loaded
+scripts/develop
 ```
 
-> The Ruff version in `.pre-commit-config.yaml` is pinned to match `requirements.txt`.
-> When bumping Ruff via Dependabot, update both files together.
-
 ---
-
-## Releases (release-please)
-
-This template uses [release-please](https://github.com/googleapis/release-please)
-to automate changelogs and GitHub Releases — no manual tagging required.
-
-### How it works
-
-1. Merge commits to `main` following the [Conventional Commits](https://www.conventionalcommits.org/) spec.
-2. release-please opens (or updates) a **Release PR** that:
-   - Bumps the version in `manifest.json`
-   - Generates a `CHANGELOG.md` entry
-3. Merge the Release PR → a GitHub Release and git tag are created automatically.
-
-### Conventional Commits quick reference
-
-| Commit prefix | Version bump | Appears in changelog |
-|---|---|---|
-| `feat: ...` | minor | Yes — **Features** |
-| `fix: ...` | patch | Yes — **Bug Fixes** |
-| `perf: ...` | patch | Yes — **Performance** |
-| `feat!: ...` or `BREAKING CHANGE:` in footer | major | Yes |
-| `refactor: ...` | none | Hidden |
-| `chore: ...` | none | Hidden |
-| `docs: ...` | none | Hidden |
-| `ci: ...` | none | Hidden |
-
-**Examples:**
-
-```
-feat: add sensor for battery level
-fix: correct unit of measurement for weight sensor
-feat!: drop support for HA < 2025.1
-chore(deps): update ruff to v0.12.0
-```
-
-### Pre-major versioning
-
-While the version is below `1.0.0`:
-- `feat:` bumps the **patch** (e.g. `0.1.0` → `0.1.1`)
-- `feat!:` bumps the **minor** (e.g. `0.1.0` → `0.2.0`)
-
-This matches the `bump-minor-pre-major` / `bump-patch-for-minor-pre-major` flags
-set in `release-please-config.json`. Remove them once you reach `1.0.0`.
-
----
-
-## Dependabot
-
-Dependabot opens **weekly grouped PRs** (every Monday) for:
-
-| Ecosystem | PR strategy |
-|---|---|
-| GitHub Actions | Minor + patch versions bundled into one PR; major updates separate |
-| Python (pip) | Minor + patch bundled; patch PRs wait 3 days, minor PRs 7 days before opening |
-| Dev containers | Weekly, ungrouped |
-
-`homeassistant` is excluded from automatic updates — it must stay in sync with
-the `homeassistant` key in `hacs.json`. Bump them together manually.
-
----
-
-## Keeping your fork in sync with the template
-
-When the upstream template gets improvements you'd like to pull in, add it
-as a `template` remote and merge selectively:
-
-```bash
-git remote add template https://github.com/SashaBusinaro/ha-hacs-template.git
-git fetch template
-git merge template/main --no-ff --allow-unrelated-histories
-```
-
-Resolve conflicts on the files you've customized (typically `manifest.json`,
-`hacs.json`, `README.md`, `custom_components/<domain>/`), then commit.
-
----
-
-## Next steps
-
-- Add **tests** using [`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component)
-- Add **brand images** (logo/icon) to `custom_components/<domain>/brand/`
-- Publish to HACS as a [Custom Repository](https://www.hacs.xyz/docs/faq/custom_repositories/)
-  or submit to the [HACS default store](https://hacs.xyz/docs/publish/start)
-- Share on the [Home Assistant Community Forum](https://community.home-assistant.io/)
 
 ## License
 

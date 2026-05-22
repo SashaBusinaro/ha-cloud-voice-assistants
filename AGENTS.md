@@ -16,8 +16,29 @@ The integration source lives in `custom_components/cloud_voice_assistants/`.
 - **Never bump `version` in `manifest.json` manually** — `release-please` does it.
 - **Never edit `.release-please-manifest.json`** — same reason.
 - **Use Conventional Commits** (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`,
-  `perf:`, `ci:`, `test:`). Bumps and changelog entries depend on the prefix.
-  See README "Releases (release-please)" for the bump table.
+  `perf:`, `ci:`, `test:`). Bumps and changelog entries depend on the prefix:
+
+  | Commit prefix | Version bump | Appears in changelog |
+  | --- | --- | --- |
+  | `feat: ...` | minor | Yes — **Features** |
+  | `fix: ...` | patch | Yes — **Bug Fixes** |
+  | `perf: ...` | patch | Yes — **Performance** |
+  | `feat!: ...` or `BREAKING CHANGE:` in footer | major | Yes |
+  | `refactor: ...` | none | Hidden |
+  | `chore: ...` | none | Hidden |
+  | `docs: ...` | none | Hidden |
+  | `ci: ...` | none | Hidden |
+
+  **First release — v1.0.0:** add `Release-As: 1.0.0` to the footer of any
+  commit pushed to `main` before the first release. Release-please will
+  accumulate all changes since the beginning and open a Release PR that
+  produces exactly `v1.0.0`, regardless of which commit types were used:
+
+  ```
+  feat: implement sensor platform
+
+  Release-As: 1.0.0
+  ```
 - **Pin Ruff in both places**: `.pre-commit-config.yaml` and `requirements.txt`
   must share the same Ruff version. Bump together.
 - **Do not commit secrets** or files under `config/` other than
@@ -44,49 +65,49 @@ config/              # HA dev config loaded by scripts/develop
 scripts/             # lint / develop / setup wrappers
 ```
 
-## Common tasks
+## Development workflow
 
-Three shell entry points cover the dev loop:
+### Shell
 
 - `scripts/setup` — create `venv/` (recreates it on platform mismatch), install dev deps (`requirements.txt`), install pre-commit hooks
 - `scripts/lint` — auto-calls `scripts/setup` if the venv is missing or invalid, then runs `pre-commit run --all-files` (same pipeline as CI)
 - `scripts/develop` — auto-calls `scripts/setup` if the venv is missing or invalid, then starts Home Assistant on port 8123 with the integration loaded
 
-For CI parity, `scripts/lint` and the `lint.yml` workflow both run `pre-commit run --all-files` — no separate ruff invocation needed.
+### VS Code
 
-VS Code users have equivalent **tasks** (`Setup`, `Lint`, `Run Home Assistant`)
-and an **F5 debug** configuration — see README sections "Start developing"
-and "Pre-commit" for details. Do not duplicate task definitions; extend
-`.vscode/tasks.json` if a new common task is genuinely needed.
+Tasks are pre-configured in `.vscode/tasks.json`:
 
-## Bootstrap repo setup (CLI helpers)
+- **Run task → "Run Home Assistant"** — starts the dev server (calls `scripts/develop`).
+- **Run task → "Lint"** — runs Ruff format + check with auto-fix (calls `scripts/lint`).
+- **F5 → "Home Assistant"** — launches HA under the debugger; breakpoints work in `custom_components/`.
 
-Two one-off actions are documented as manual steps in `README.md`. When the user
-has the GitHub CLI available, run them as:
+Do not duplicate task definitions; extend `.vscode/tasks.json` only if a new
+common task is genuinely needed.
+
+### Pre-commit hooks
+
+Runs automatically before every `git commit`. To run manually:
 
 ```bash
-# 1. Allow release-please to open the Release PR
-gh api -X PUT "/repos/SashaBusinaro/ha-cloud-voice-assistants/actions/permissions/workflow" \
-  -F default_workflow_permissions=write \
-  -F can_approve_pull_request_reviews=true
-
-# 2. Add the HACS-required repository topics (HACS validation fails without them)
-gh repo edit "SashaBusinaro/ha-cloud-voice-assistants" \
-  --add-topic home-assistant \
-  --add-topic hacs \
-  --add-topic home-assistant-custom \
-  --add-topic integration
+pre-commit run --all-files        # all hooks
+pre-commit run ruff --all-files   # single hook
 ```
 
-Run both after the placeholder substitution and the first push. Without (1) the
-release-please workflow fails with `403` when it tries to open a PR; without (2)
-the `Validate` workflow's HACS job fails with
-`<Validation topics> failed: The repository has no valid topics`.
+| Hook | What it checks |
+| --- | --- |
+| `check-json` | `manifest.json`, `translations/*.json`, `hacs.json` |
+| `check-yaml` | all `.yml` workflow and config files |
+| `trailing-whitespace` | removes trailing spaces |
+| `end-of-file-fixer` | ensures files end with a newline |
+| `check-merge-conflict` | blocks accidental merge-conflict markers |
+| `ruff` | lints Python and auto-fixes safe issues |
+| `ruff-format` | formats Python code |
+| `codespell` | catches common typos in code, comments and docs |
 
 ## Adding a new platform / entity type
 
 1. Create `custom_components/cloud_voice_assistants/<platform>.py` (or a sub-package).
-2. Subclass the relevant HA entity / platform base class.
+2. Subclass the relevant HA entity (e.g. `SensorEntity`).
 3. Append the `Platform` enum value to the `PLATFORMS` list in `__init__.py`.
 4. Add translation keys to `translations/en.json` if the entity is user-facing.
 
@@ -125,8 +146,8 @@ when a single line genuinely needs to break a rule.
 - `homeassistant` is **excluded** from Dependabot — it must stay in sync with
   the `homeassistant` key in `hacs.json`. Bump them together manually.
   When bumping the minimum HA version, update all three places in lockstep:
-  `hacs.json → homeassistant`, `requirements.txt → homeassistant==`, and the
-  `## Requirements` section in `README.md`.
+  `hacs.json → homeassistant`, `requirements.txt → homeassistant==`, and any
+  minimum-version statement in `README.md` if one is present.
 
 ## Extension points
 
