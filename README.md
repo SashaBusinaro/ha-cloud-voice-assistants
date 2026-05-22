@@ -1,18 +1,18 @@
-# ha-hacs-template
+# Cloud Voice Assistants
 
 [![Validate][validate-badge]][validate-url]
 [![HACS Custom][hacs-badge]][hacs-url]
 [![Release][release-badge]][release-url]
 [![License][license-badge]][license-url]
 
-[validate-badge]: https://img.shields.io/github/actions/workflow/status/SashaBusinaro/ha-hacs-template/validate.yml?style=for-the-badge&label=Validate
-[validate-url]: https://github.com/SashaBusinaro/ha-hacs-template/actions/workflows/validate.yml
+[validate-badge]: https://img.shields.io/github/actions/workflow/status/SashaBusinaro/ha-cloud-voice-assistants/validate.yml?style=for-the-badge&label=Validate
+[validate-url]: https://github.com/SashaBusinaro/ha-cloud-voice-assistants/actions/workflows/validate.yml
 [hacs-badge]: https://img.shields.io/badge/HACS-Custom-41BDF5?style=for-the-badge&logo=homeassistantcommunitystore&logoColor=white
 [hacs-url]: https://www.hacs.xyz/docs/faq/custom_repositories/
-[release-badge]: https://img.shields.io/github/v/release/SashaBusinaro/ha-hacs-template?style=for-the-badge&color=blue
-[release-url]: https://github.com/SashaBusinaro/ha-hacs-template/releases
-[license-badge]: https://img.shields.io/github/license/SashaBusinaro/ha-hacs-template?style=for-the-badge
-[license-url]: https://github.com/SashaBusinaro/ha-hacs-template/blob/main/LICENSE
+[release-badge]: https://img.shields.io/github/v/release/SashaBusinaro/ha-cloud-voice-assistants?style=for-the-badge&color=blue
+[release-url]: https://github.com/SashaBusinaro/ha-cloud-voice-assistants/releases
+[license-badge]: https://img.shields.io/github/license/SashaBusinaro/ha-cloud-voice-assistants?style=for-the-badge
+[license-url]: https://github.com/SashaBusinaro/ha-cloud-voice-assistants/blob/main/LICENSE
 
 A production-ready GitHub template for building **HACS-compatible Home Assistant custom integrations** — CI/CD, automated releases, pre-commit hooks and Dependabot pre-configured out of the box.
 
@@ -26,7 +26,7 @@ A production-ready GitHub template for building **HACS-compatible Home Assistant
 
 Click the button below to open the integration directly in HACS:
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=YOUR_GITHUB_USERNAME&repository=YOUR_REPO_NAME&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=SashaBusinaro&repository=ha-cloud-voice-assistants&category=integration)
 
 Then:
 
@@ -41,7 +41,7 @@ Then:
 
 If you prefer not to use HACS:
 
-1. Download the `custom_components/integration_blueprint/` folder from this repository
+1. Download the `custom_components/cloud_voice_assistants/` folder from this repository
 2. Copy it to your Home Assistant's `custom_components/` directory
 3. Restart Home Assistant
 
@@ -53,13 +53,13 @@ If you prefer not to use HACS:
 
 #### Option 1: One-Click Setup
 
-[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=integration_blueprint)
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=cloud_voice_assistants)
 
 #### Option 2: Manual Setup
 
 1. Go to **Settings** → **Devices & Services**
 2. Click **"+ Add Integration"**
-3. Search for "YOUR_INTEGRATION_NAME"
+3. Search for "Cloud Voice Assistants"
 4. Follow the setup wizard
 
 ---
@@ -100,94 +100,11 @@ If you prefer not to use HACS:
 | `AGENTS.md` | Guidance for AI agents working in this repo |
 | `CHANGELOG.md` | Auto-generated changelog (managed by release-please) |
 | `config/configuration.yaml` | HA config loaded by the devcontainer |
-| `custom_components/integration_blueprint/` | Integration source — rename to your domain |
+| `custom_components/cloud_voice_assistants/` | Integration source — rename to your domain |
 | `hacs.json` | HACS metadata (integration name, minimum HA version) |
 | `scripts/` | Helper scripts: `setup` (install deps), `lint` (format + check), `develop` (run HA) |
 | `requirements.txt` | Dev / lint Python dependencies |
 | `CONTRIBUTING.md` | Contribution guidelines |
-
----
-
-## How to use this template
-
-### 1. Create your repository
-
-Click **"Use this template" → "Create a new repository"** on GitHub.
-
-### 2. Enable GitHub Actions permissions
-
-release-please needs permission to open pull requests on your behalf.
-
-Go to **Settings → Actions → General** → scroll to **Workflow permissions** → enable
-**"Allow GitHub Actions to create and approve pull requests"** → click **Save**.
-
-Without this, the release-please workflow will fail with a `403` error when it tries
-to open a Release PR.
-
-### 3. Add the HACS-required repository topics
-
-HACS validation fails until the repository carries at least one of the recognised
-topics. Add them from the GitHub UI (**top of the repo page → ⚙️ next to "About"
-→ Topics**).
-
-### 4. Clone and run setup
-
-```bash
-git clone git@github.com:<your-user>/<your-repo>.git
-cd <your-repo>
-scripts/setup
-```
-
-This creates a `venv/`, installs all dependencies, and installs the pre-commit hooks.
-Pre-commit will now run automatically before every `git commit`.
-
-### 5. Replace the placeholders
-
-Use your editor's "Find in Files" (VS Code: `Cmd+Shift+F` / `Ctrl+Shift+F`) to
-replace every occurrence of the tokens below across the whole repository.
-
-<!-- placeholders-ssot:start -->
-
-| Placeholder | Replace with |
-|---|---|
-| `integration_blueprint` | your integration domain (lowercase, pattern `[a-z][a-z0-9_]*`), e.g. `my_integration` |
-| `Integration blueprint` | your integration display name, e.g. `My Integration` |
-| `YOUR_INTEGRATION_NAME` | your integration display name |
-| `YOUR_GITHUB_USERNAME` | your GitHub username |
-| `YOUR_REPO_NAME` | your GitHub repository name |
-| `SashaBusinaro/ha-hacs-template` | `<your-user>/<your-repo>` — **skip the URL ending in `.git`** in the "Keeping your fork in sync" section below; that one must keep pointing at the upstream template |
-
-<!-- placeholders-ssot:end -->
-
-Then rename the integration directory to match the new domain:
-
-```bash
-git mv custom_components/integration_blueprint "custom_components/<your-domain>"
-```
-
-You can delete this entire section from your README once the substitution is
-complete — it only exists to drive the one-off setup.
-
-### 6. Start developing
-
-Open the repository in VS Code and choose
-**"Dev Containers: Reopen in Container"** to get a full Home Assistant instance running
-locally with your integration already loaded.
-
-VS Code is pre-configured with:
-
-- **Run task → "Run Home Assistant"** to start the dev server.
-- **F5 → "Home Assistant"** to launch HA under the debugger (breakpoints work in `custom_components/`).
-- **Run task → "Lint"** to run Ruff format + check with auto-fix.
-
-Or run the dev server directly from the shell:
-
-```bash
-scripts/develop
-```
-
-`scripts/develop` automatically activates the `venv/` created by `scripts/setup`,
-so no manual activation is needed.
 
 ---
 

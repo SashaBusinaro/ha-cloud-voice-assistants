@@ -1,5 +1,5 @@
 {
-    "name": "YOUR_INTEGRATION_NAME",
-    "homeassistant": "2026.5.3",
+    "name": "Cloud Voice Assistants",
+    "homeassistant": "2025.6.0",
     "hacs": "2.0.5"
 }

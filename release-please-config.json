@@ -9,7 +9,7 @@
       "extra-files": [
         {
           "type": "json",
-          "path": "custom_components/integration_blueprint/manifest.json",
+          "path": "custom_components/cloud_voice_assistants/manifest.json",
           "jsonpath": "$.version"
         }
       ],
