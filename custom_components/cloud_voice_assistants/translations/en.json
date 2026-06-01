@@ -55,12 +55,14 @@
           "data": {
             "model": "Model",
             "temperature": "Temperature",
-            "max_tokens": "Maximum tokens"
+            "max_tokens": "Maximum tokens",
+            "web_search_tier": "Web search"
           },
           "data_description": {
             "model": "The language model used for data generation.",
             "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
-            "max_tokens": "Maximum number of tokens in the model response."
+            "max_tokens": "Maximum number of tokens in the model response.",
+            "web_search_tier": "Allow the model to search the web for up-to-date information. Premium also includes news articles. Mistral only."
           }
         },
         "reconfigure": {
@@ -69,12 +71,14 @@
           "data": {
             "model": "Model",
             "temperature": "Temperature",
-            "max_tokens": "Maximum tokens"
+            "max_tokens": "Maximum tokens",
+            "web_search_tier": "Web search"
           },
           "data_description": {
             "model": "The language model used for data generation.",
             "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
-            "max_tokens": "Maximum number of tokens in the model response."
+            "max_tokens": "Maximum number of tokens in the model response.",
+            "web_search_tier": "Allow the model to search the web for up-to-date information. Premium also includes news articles. Mistral only."
           }
         }
       },
@@ -97,14 +101,16 @@
             "prompt": "System prompt",
             "llm_hass_api": "Control Home Assistant",
             "temperature": "Temperature",
-            "max_tokens": "Maximum tokens"
+            "max_tokens": "Maximum tokens",
+            "web_search_tier": "Web search"
           },
           "data_description": {
             "model": "The language model used for conversation.",
             "prompt": "System prompt template (supports Home Assistant templates).",
             "llm_hass_api": "Select which Home Assistant APIs the AI can use to control your devices. 'Assist' exposes the same entities as the built-in voice assistant.",
             "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
-            "max_tokens": "Maximum number of tokens in the model response."
+            "max_tokens": "Maximum number of tokens in the model response.",
+            "web_search_tier": "Allow the model to search the web for up-to-date information. Premium also includes news articles. Mistral only."
           }
         },
         "reconfigure": {
@@ -115,14 +121,16 @@
             "prompt": "System prompt",
             "llm_hass_api": "Control Home Assistant",
             "temperature": "Temperature",
-            "max_tokens": "Maximum tokens"
+            "max_tokens": "Maximum tokens",
+            "web_search_tier": "Web search"
           },
           "data_description": {
             "model": "The language model used for conversation.",
             "prompt": "System prompt template (supports Home Assistant templates).",
             "llm_hass_api": "Select which Home Assistant APIs the AI can use to control your devices. 'Assist' exposes the same entities as the built-in voice assistant.",
             "temperature": "Sampling temperature (0 = deterministic, 1 = creative).",
-            "max_tokens": "Maximum number of tokens in the model response."
+            "max_tokens": "Maximum number of tokens in the model response.",
+            "web_search_tier": "Allow the model to search the web for up-to-date information. Premium also includes news articles. Mistral only."
           }
         }
       },

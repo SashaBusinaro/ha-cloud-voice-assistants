@@ -13,11 +13,14 @@ from custom_components.cloud_voice_assistants.const import (
     CONF_MAX_TOKENS,
     CONF_MODEL,
     CONF_TEMPERATURE,
+    CONF_WEB_SEARCH,
     DEFAULT_AI_TASK_MAX_TOKENS,
     DEFAULT_TEMPERATURE,
+    DEFAULT_WEB_SEARCH,
     DOMAIN,
     LOGGER,
     SUBENTRY_TYPE_AI_TASK,
+    WEB_SEARCH_NONE,
 )
 from custom_components.cloud_voice_assistants.conversation.helpers import (
     async_run_llm_loop,
@@ -94,6 +97,13 @@ class CloudVoiceAssistantsAiTaskEntity(ai_task.AITaskEntity):
             0.0, min(1.0, float(opts.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE)))
         )
 
+        web_search_tier = opts.get(CONF_WEB_SEARCH, DEFAULT_WEB_SEARCH)
+        native_tools = (
+            [{"type": web_search_tier}]
+            if web_search_tier and web_search_tier != WEB_SEARCH_NONE
+            else None
+        )
+
         await async_run_llm_loop(
             chat_log=chat_log,
             provider=provider,
@@ -103,6 +113,7 @@ class CloudVoiceAssistantsAiTaskEntity(ai_task.AITaskEntity):
             temperature=temperature,
             max_tokens=max_tokens,
             max_iterations=1000,
+            native_provider_tools=native_tools,
         )
 
         # Extract the final assistant response

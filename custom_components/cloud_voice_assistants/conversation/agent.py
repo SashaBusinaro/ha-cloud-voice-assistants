@@ -25,10 +25,13 @@ from custom_components.cloud_voice_assistants.const import (
     CONF_MODEL,
     CONF_PROMPT,
     CONF_TEMPERATURE,
+    CONF_WEB_SEARCH,
     DEFAULT_MAX_TOKENS,
     DEFAULT_TEMPERATURE,
+    DEFAULT_WEB_SEARCH,
     DOMAIN,
     MAX_TOOL_ITERATIONS,
+    WEB_SEARCH_NONE,
 )
 
 from .helpers import async_run_llm_loop
@@ -106,6 +109,13 @@ class CloudVoiceAssistantsConversationEntity(ConversationEntity):
             0.0, min(1.0, float(opts.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE)))
         )
 
+        web_search_tier = opts.get(CONF_WEB_SEARCH, DEFAULT_WEB_SEARCH)
+        native_tools = (
+            [{"type": web_search_tier}]
+            if web_search_tier and web_search_tier != WEB_SEARCH_NONE
+            else None
+        )
+
         await async_run_llm_loop(
             chat_log=chat_log,
             provider=provider,
@@ -115,6 +125,7 @@ class CloudVoiceAssistantsConversationEntity(ConversationEntity):
             temperature=temperature,
             max_tokens=max_tokens,
             max_iterations=MAX_TOOL_ITERATIONS,
+            native_provider_tools=native_tools,
         )
 
         return conversation.async_get_result_from_chat_log(user_input, chat_log)

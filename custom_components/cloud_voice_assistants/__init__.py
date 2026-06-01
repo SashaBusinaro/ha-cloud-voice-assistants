@@ -53,4 +53,7 @@ async def async_unload_entry(
     entry: CloudVoiceAssistantsConfigEntry,
 ) -> bool:
     """Unload a Cloud Voice Assistants config entry."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unloaded:
+        await entry.runtime_data.provider.async_close()
+    return unloaded

@@ -22,13 +22,18 @@ from custom_components.cloud_voice_assistants.const import (
     CONF_PROVIDER,
     CONF_STT_MODEL,
     CONF_TEMPERATURE,
+    CONF_WEB_SEARCH,
     DEFAULT_AI_TASK_MAX_TOKENS,
     DEFAULT_MAX_TOKENS,
     DEFAULT_PROMPT,
     DEFAULT_TEMPERATURE,
+    DEFAULT_WEB_SEARCH,
     LOGGER,
     PROVIDER_GROQ,
     PROVIDER_MISTRAL,
+    WEB_SEARCH_NONE,
+    WEB_SEARCH_PREMIUM,
+    WEB_SEARCH_STANDARD,
 )
 from custom_components.cloud_voice_assistants.providers.groq import (
     CHAT_MODELS as GROQ_CHAT_MODELS,
@@ -54,57 +59,76 @@ _STT_MODELS_BY_PROVIDER: dict[str, list[str]] = {
 }
 
 
+_WEB_SEARCH_OPTIONS: list[selector.SelectOptionDict] = [
+    selector.SelectOptionDict(value=WEB_SEARCH_NONE, label="Disabled"),
+    selector.SelectOptionDict(value=WEB_SEARCH_STANDARD, label="Standard (web)"),
+    selector.SelectOptionDict(value=WEB_SEARCH_PREMIUM, label="Premium (web + news)"),
+]
+
+
 def _get_conversation_schema(
     chat_models: list[str],
     hass_apis: list[selector.SelectOptionDict],
     defaults: dict[str, Any],
+    provider_id: str = "",
 ) -> vol.Schema:
     """Build the schema for the conversation sub-entry form."""
-    return vol.Schema(
-        {
-            vol.Required(
-                CONF_MODEL, default=defaults.get(CONF_MODEL, chat_models[0])
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=chat_models,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
+    schema: dict[vol.Marker, Any] = {
+        vol.Required(
+            CONF_MODEL, default=defaults.get(CONF_MODEL, chat_models[0])
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=chat_models,
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        ),
+        vol.Optional(
+            CONF_PROMPT, default=defaults.get(CONF_PROMPT, DEFAULT_PROMPT)
+        ): selector.TemplateSelector(),
+        vol.Optional(
+            CONF_LLM_HASS_API, default=defaults.get(CONF_LLM_HASS_API, [])
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=hass_apis,
+                multiple=True,
+            )
+        ),
+        vol.Optional(
+            CONF_TEMPERATURE,
+            default=defaults.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE),
+        ): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0.0,
+                max=1.0,
+                step=0.05,
+                mode=selector.NumberSelectorMode.SLIDER,
+            )
+        ),
+        vol.Optional(
+            CONF_MAX_TOKENS,
+            default=defaults.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS),
+        ): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=64,
+                max=8192,
+                step=64,
+                mode=selector.NumberSelectorMode.BOX,
+            )
+        ),
+    }
+    if provider_id == PROVIDER_MISTRAL:
+        schema[
             vol.Optional(
-                CONF_PROMPT, default=defaults.get(CONF_PROMPT, DEFAULT_PROMPT)
-            ): selector.TemplateSelector(),
-            vol.Optional(
-                CONF_LLM_HASS_API, default=defaults.get(CONF_LLM_HASS_API, [])
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=hass_apis,
-                    multiple=True,
-                )
-            ),
-            vol.Optional(
-                CONF_TEMPERATURE,
-                default=defaults.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0.0,
-                    max=1.0,
-                    step=0.05,
-                    mode=selector.NumberSelectorMode.SLIDER,
-                )
-            ),
-            vol.Optional(
-                CONF_MAX_TOKENS,
-                default=defaults.get(CONF_MAX_TOKENS, DEFAULT_MAX_TOKENS),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=64,
-                    max=8192,
-                    step=64,
-                    mode=selector.NumberSelectorMode.BOX,
-                )
-            ),
-        }
-    )
+                CONF_WEB_SEARCH,
+                default=defaults.get(CONF_WEB_SEARCH, DEFAULT_WEB_SEARCH),
+            )
+        ] = selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=_WEB_SEARCH_OPTIONS,
+                mode=selector.SelectSelectorMode.LIST,
+            )
+        )
+    return vol.Schema(schema)
 
 
 def _get_stt_schema(
@@ -163,7 +187,9 @@ class ConversationSubentryFlow(config_entries.ConfigSubentryFlow):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_get_conversation_schema(chat_models, hass_apis, {}),
+            data_schema=_get_conversation_schema(
+                chat_models, hass_apis, {}, provider_id
+            ),
         )
 
     async def async_step_reconfigure(
@@ -193,7 +219,7 @@ class ConversationSubentryFlow(config_entries.ConfigSubentryFlow):
         return self.async_show_form(
             step_id="reconfigure",
             data_schema=_get_conversation_schema(
-                chat_models, hass_apis, dict(subentry.data)
+                chat_models, hass_apis, dict(subentry.data), provider_id
             ),
         )
 
@@ -248,43 +274,55 @@ class SttSubentryFlow(config_entries.ConfigSubentryFlow):
 def _get_ai_task_schema(
     chat_models: list[str],
     defaults: dict[str, Any],
+    provider_id: str = "",
 ) -> vol.Schema:
     """Build the schema for the AI task sub-entry form."""
-    return vol.Schema(
-        {
-            vol.Required(
-                CONF_MODEL,
-                default=defaults.get(CONF_MODEL, chat_models[0]),
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=chat_models,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
+    schema: dict[vol.Marker, Any] = {
+        vol.Required(
+            CONF_MODEL,
+            default=defaults.get(CONF_MODEL, chat_models[0]),
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=chat_models,
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        ),
+        vol.Optional(
+            CONF_TEMPERATURE,
+            default=defaults.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE),
+        ): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=0.0,
+                max=1.0,
+                step=0.05,
+                mode=selector.NumberSelectorMode.SLIDER,
+            )
+        ),
+        vol.Optional(
+            CONF_MAX_TOKENS,
+            default=defaults.get(CONF_MAX_TOKENS, DEFAULT_AI_TASK_MAX_TOKENS),
+        ): selector.NumberSelector(
+            selector.NumberSelectorConfig(
+                min=64,
+                max=8192,
+                step=64,
+                mode=selector.NumberSelectorMode.BOX,
+            )
+        ),
+    }
+    if provider_id == PROVIDER_MISTRAL:
+        schema[
             vol.Optional(
-                CONF_TEMPERATURE,
-                default=defaults.get(CONF_TEMPERATURE, DEFAULT_TEMPERATURE),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0.0,
-                    max=1.0,
-                    step=0.05,
-                    mode=selector.NumberSelectorMode.SLIDER,
-                )
-            ),
-            vol.Optional(
-                CONF_MAX_TOKENS,
-                default=defaults.get(CONF_MAX_TOKENS, DEFAULT_AI_TASK_MAX_TOKENS),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=64,
-                    max=8192,
-                    step=64,
-                    mode=selector.NumberSelectorMode.BOX,
-                )
-            ),
-        }
-    )
+                CONF_WEB_SEARCH,
+                default=defaults.get(CONF_WEB_SEARCH, DEFAULT_WEB_SEARCH),
+            )
+        ] = selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=_WEB_SEARCH_OPTIONS,
+                mode=selector.SelectSelectorMode.LIST,
+            )
+        )
+    return vol.Schema(schema)
 
 
 def _clean_ai_task_data(data: dict[str, Any]) -> dict[str, Any]:
@@ -317,7 +355,7 @@ class AiTaskSubentryFlow(config_entries.ConfigSubentryFlow):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_get_ai_task_schema(chat_models, {}),
+            data_schema=_get_ai_task_schema(chat_models, {}, provider_id),
         )
 
     async def async_step_reconfigure(
@@ -342,7 +380,9 @@ class AiTaskSubentryFlow(config_entries.ConfigSubentryFlow):
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=_get_ai_task_schema(chat_models, dict(subentry.data)),
+            data_schema=_get_ai_task_schema(
+                chat_models, dict(subentry.data), provider_id
+            ),
         )
 
 

@@ -26,6 +26,7 @@ A Home Assistant custom integration that connects **Groq** and **Mistral** cloud
 - **Speech-to-text (STT)** — Whisper-compatible transcription in 57+ languages, plugs directly into the Assist pipeline
 - **AI Task** — structured and unstructured data generation for automations and scripts
 - **Two providers out of the box** — Groq and Mistral, each with multiple model choices
+- **Mistral built-in web search** — opt into `web_search` (web) or `web_search_premium` (web + news) directly from the conversation or AI Task options, using Mistral's official Conversations API
 - **Fully UI-configured** — model, system prompt, temperature, and token limit all editable without YAML
 
 ---
@@ -106,6 +107,7 @@ You can add more sub-entries of any type later from the integration's options.
 | HA LLM APIs | *(none)* | Enable to let the assistant control Home Assistant devices via tool calls |
 | Temperature | `1.0` | Creativity (0 = deterministic, 1 = most varied) |
 | Max tokens | `1024` | Maximum length of each reply |
+| Web search *(Mistral only)* | `Disabled` | Built-in connector: `Standard` (web) or `Premium` (web + news). When enabled, requests are routed to Mistral's Conversations API |
 
 The default system prompt introduces the assistant, asks it to match the user's language, and injects the current date and the home's name via Jinja2:
 
@@ -133,6 +135,7 @@ The STT entity accepts 16-bit PCM audio at 16 kHz (mono) — the standard format
 | Model | `llama-3.3-70b-versatile` / `ministral-8b-latest` | LLM model to use |
 | Temperature | `1.0` | Creativity |
 | Max tokens | `4096` | Maximum output length |
+| Web search *(Mistral only)* | `Disabled` | Built-in connector: `Standard` (web) or `Premium` (web + news) |
 
 The AI Task entity can generate free-form text or structured JSON. Use it in automations with the `ai_task.generate_data` action.
 

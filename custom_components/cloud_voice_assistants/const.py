@@ -40,3 +40,10 @@ DEFAULT_PROMPT = (
 
 # Max tool-call round-trips to prevent infinite loops
 MAX_TOOL_ITERATIONS = 10
+
+# Web search tier (Mistral-native built-in tool)
+CONF_WEB_SEARCH = "web_search_tier"
+WEB_SEARCH_NONE = "none"
+WEB_SEARCH_STANDARD = "web_search"
+WEB_SEARCH_PREMIUM = "web_search_premium"
+DEFAULT_WEB_SEARCH = WEB_SEARCH_NONE

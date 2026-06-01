@@ -134,6 +134,7 @@ async def async_run_llm_loop(  # noqa: PLR0913
     temperature: float,
     max_tokens: int,
     max_iterations: int = MAX_TOOL_ITERATIONS,
+    native_provider_tools: list[dict[str, Any]] | None = None,
 ) -> None:
     """
     Run the LLM tool-call loop, consuming deltas into chat_log.
@@ -144,12 +145,18 @@ async def async_run_llm_loop(  # noqa: PLR0913
         HomeAssistantError: on provider errors or unexpected exceptions.
 
     """
-    tools: list[dict[str, Any]] | None = None
+    tools: list[dict[str, Any]] | None = (
+        list(native_provider_tools) if native_provider_tools else None
+    )
     if chat_log.llm_api:
-        tools = [
+        ha_tools = [
             _format_tool(tool, chat_log.llm_api.custom_serializer)
             for tool in chat_log.llm_api.tools
         ]
+        if tools is not None:
+            tools.extend(ha_tools)
+        else:
+            tools = ha_tools
 
     for _iteration in range(max_iterations):
         messages = _convert_chat_log_to_messages(chat_log)

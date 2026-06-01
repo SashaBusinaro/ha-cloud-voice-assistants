@@ -90,6 +90,10 @@ class CloudProvider(Protocol):
         """
         ...
 
+    async def async_close(self) -> None:
+        """Release any underlying resources held by the provider."""
+        ...
+
 
 __all__ = [
     "CannotConnectError",

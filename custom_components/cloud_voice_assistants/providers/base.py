@@ -40,6 +40,9 @@ class CloudProviderBase:
         """Initialize the provider with the given API key."""
         self._api_key = api_key
 
+    async def async_close(self) -> None:
+        """Release any underlying resources. Default no-op."""
+
     def _get_headers(self) -> dict[str, str]:
         """Return JSON API request headers with Bearer auth."""
         return {
